@@ -11,7 +11,9 @@ namespace ModelLayer.Entity
     /// Represents a Contact entity with personal details.
     /// </summary>
     public class Contact
-    {  
+    {
+        [Key]
+        public int Id { get; set; }
         [Required]
         public string FullName { get; set; }
 
@@ -27,7 +29,7 @@ namespace ModelLayer.Entity
         [Required]
         public string ZipCode { get; set; }
 
-        [Key]
-        public int PhoneNumber { get; set; }
+        [Required]
+        public string PhoneNumber { get; set; }
     }
 }

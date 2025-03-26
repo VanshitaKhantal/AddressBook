@@ -1,5 +1,9 @@
+using BusinessLayer.Interface;
+using BusinessLayer.Service;
 using Microsoft.EntityFrameworkCore;
 using RepositoryLayer.Context;
+using RepositoryLayer.Interface;
+using RepositoryLayer.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +15,10 @@ builder.Services.AddDbContext<AddressBookContext>(options =>
 // Add services to the container.
 
 builder.Services.AddControllers();
+
+// Dependency Injection
+builder.Services.AddScoped<IAddressBookRL, AddressBookRL>();
+builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 
 var app = builder.Build();
 
