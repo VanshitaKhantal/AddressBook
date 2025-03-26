@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ModelLayer.Entity;
 using BusinessLayer.Interface;
-using System.Collections.Generic;
 using ModelLayer.DTO;
+using AutoMapper;
+using FluentValidation;
+using FluentValidation.Results;
+using System.Collections.Generic;
 
 namespace WebAPI.Controllers
 {
@@ -14,37 +17,39 @@ namespace WebAPI.Controllers
     public class AddressBookController : ControllerBase
     {
         private readonly IAddressBookService _addressBookService;
+        private readonly IMapper _mapper;
+        private readonly IValidator<AddressBookDTO> _validator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AddressBookController"/> class.
         /// </summary>
-        /// <param name="addressBookService">Service for address book operations.</param>
-        public AddressBookController(IAddressBookService addressBookService)
+        public AddressBookController(IAddressBookService addressBookService, IMapper mapper, IValidator<AddressBookDTO> validator)
         {
             _addressBookService = addressBookService;
+            _mapper = mapper;
+            _validator = validator;
         }
 
         /// <summary>
         /// Retrieves all contacts from the address book.
         /// </summary>
-        /// <returns>List of contacts.</returns>
         [HttpGet]
         public IActionResult GetContacts()
         {
-            List<Contact> contacts = _addressBookService.GetAllContacts();
-            return Ok(new ResponseModel<List<Contact>>
+            var contacts = _addressBookService.GetAllContacts();
+            var contactDTOs = _mapper.Map<List<AddressBookDTO>>(contacts);
+
+            return Ok(new ResponseModel<List<AddressBookDTO>>
             {
                 Success = true,
                 Message = "Contacts retrieved successfully",
-                Data = contacts
+                Data = contactDTOs
             });
         }
 
         /// <summary>
         /// Retrieves a contact by its ID.
         /// </summary>
-        /// <param name="id">The ID of the contact.</param>
-        /// <returns>Contact details if found, otherwise NotFound response.</returns>
         [HttpGet("{id}")]
         public IActionResult GetContactById(int id)
         {
@@ -53,33 +58,38 @@ namespace WebAPI.Controllers
             {
                 return NotFound(new ResponseModel<string> { Success = false, Message = "Contact not found", Data = null });
             }
-            return Ok(new ResponseModel<Contact>
+
+            var contactDTO = _mapper.Map<AddressBookDTO>(contact);
+            return Ok(new ResponseModel<AddressBookDTO>
             {
                 Success = true,
                 Message = "Contact retrieved successfully",
-                Data = contact
+                Data = contactDTO
             });
         }
 
         /// <summary>
         /// Adds a new contact to the address book.
         /// </summary>
-        /// <param name="contact">Contact details to be added.</param>
-        /// <returns>The newly added contact details.</returns>
         [HttpPost]
-        public IActionResult AddContact([FromBody] Contact contact)
+        public IActionResult AddContact([FromBody] AddressBookDTO contactDTO)
         {
-            if (contact == null)
+            // Validate DTO
+            var validationResult = _validator.Validate(contactDTO);
+            if (!validationResult.IsValid)
             {
-                return BadRequest(new ResponseModel<string>
+                return BadRequest(new ResponseModel<object>
                 {
                     Success = false,
-                    Message = "Invalid contact data",
-                    Data = null
+                    Message = "Validation Failed",
+                    Data = validationResult.Errors.Select(e => e.ErrorMessage)
                 });
             }
 
-            var addedContact = _addressBookService.AddContact(contact);
+            // Convert DTO to Entity
+            var contactEntity = _mapper.Map<Contact>(contactDTO);
+
+            var addedContact = _addressBookService.AddContact(contactEntity);
             if (addedContact == null)
             {
                 return BadRequest(new ResponseModel<string>
@@ -98,53 +108,55 @@ namespace WebAPI.Controllers
             });
         }
 
+
         /// <summary>
         /// Updates an existing contact in the address book.
         /// </summary>
-        /// <param name="id">The ID of the contact to update.</param>
-        /// <param name="contact">Updated contact details.</param>
-        /// <returns>The updated contact details if successful.</returns>
         [HttpPut("{id}")]
-        public IActionResult UpdateContact(int id, [FromBody] Contact contact)
+        public IActionResult UpdateContact(int id, [FromBody] AddressBookDTO contactDTO)
         {
-            var result = _addressBookService.UpdateContact(id, contact);
-            if (!result)
+            ValidationResult validationResult = _validator.Validate(contactDTO);
+            if (!validationResult.IsValid)
             {
-                return NotFound(new ResponseModel<string>
+                return BadRequest(new ResponseModel<List<string>>
                 {
                     Success = false,
-                    Message = "Contact not found",
-                    Data = null
+                    Message = "Validation failed",
+                    Data = validationResult.Errors.ConvertAll(error => error.ErrorMessage)
                 });
             }
 
+            var contact = _mapper.Map<Contact>(contactDTO);
+            var result = _addressBookService.UpdateContact(id, contact);
+            if (!result)
+            {
+                return NotFound(new ResponseModel<string> { Success = false, Message = "Contact not found", Data = null });
+            }
+
             var updatedContact = _addressBookService.GetContactById(id);
-            return Ok(new ResponseModel<Contact>
+            var updatedContactDTO = _mapper.Map<AddressBookDTO>(updatedContact);
+
+            return Ok(new ResponseModel<AddressBookDTO>
             {
                 Success = true,
                 Message = "Contact updated successfully",
-                Data = updatedContact
+                Data = updatedContactDTO
             });
         }
+
 
         /// <summary>
         /// Deletes a contact from the address book.
         /// </summary>
-        /// <param name="id">The ID of the contact to delete.</param>
-        /// <returns>A success message if deletion is successful.</returns>
         [HttpDelete("{id}")]
         public IActionResult DeleteContact(int id)
         {
             var result = _addressBookService.DeleteContact(id);
             if (!result)
             {
-                return NotFound(new ResponseModel<string>
-                {
-                    Success = false,
-                    Message = "Contact not found",
-                    Data = null
-                });
+                return NotFound(new ResponseModel<string> { Success = false, Message = "Contact not found", Data = null });
             }
+
             return Ok(new ResponseModel<string>
             {
                 Success = true,
