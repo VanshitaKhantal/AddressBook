@@ -1,4 +1,5 @@
-﻿using ModelLayer.Entity;
+﻿using ModelLayer.DTO;
+using ModelLayer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +15,8 @@ namespace BusinessLayer.Interface
     {
         List<Contact> GetAllContacts();
         Contact GetContactById(int id);
-        Contact AddContact(Contact contact);
-        bool UpdateContact(int id, Contact contact);
+        Contact AddContact(AddressBookDTO contactDTO);
+        bool UpdateContact(int id, AddressBookDTO contactDTO);
         bool DeleteContact(int id);
     }
 }

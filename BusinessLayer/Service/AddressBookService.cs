@@ -1,4 +1,6 @@
-﻿using BusinessLayer.Interface;
+﻿using AutoMapper;
+using BusinessLayer.Interface;
+using ModelLayer.DTO;
 using ModelLayer.Entity;
 using RepositoryLayer.Interface;
 using System.Collections.Generic;
@@ -15,14 +17,16 @@ namespace BusinessLayer.Service
         /// Repository instance for accessing contact data.
         /// </summary>
         private readonly IAddressBookRL _addressBookRepository;
+        private readonly IMapper _mapper;
 
         /// <summary>
         /// Constructor to initialize the AddressBookService with a repository instance.
         /// </summary>
         /// <param name="addressBookRepository">Repository instance for data access.</param>
-        public AddressBookService(IAddressBookRL addressBookRepository)
+        public AddressBookService(IAddressBookRL addressBookRepository, IMapper mapper)
         {
             _addressBookRepository = addressBookRepository;
+            _mapper = mapper;
         }
 
         /// <summary>
@@ -49,9 +53,11 @@ namespace BusinessLayer.Service
         /// </summary>
         /// <param name="contact">The contact details to add.</param>
         /// <returns>The newly added contact.</returns>
-        public Contact AddContact(Contact contact)
+        public Contact AddContact(AddressBookDTO contactDTO)
         {
-            return _addressBookRepository.AddContact(contact);
+            var contactEntity = _mapper.Map<Contact>(contactDTO);
+            _addressBookRepository.AddContact(contactEntity);
+            return contactEntity;
         }
 
         /// <summary>
@@ -60,9 +66,14 @@ namespace BusinessLayer.Service
         /// <param name="id">The ID of the contact to update.</param>
         /// <param name="contact">The updated contact details.</param>
         /// <returns>True if the update was successful, otherwise false.</returns>
-        public bool UpdateContact(int id, Contact contact)
+        public bool UpdateContact(int id, AddressBookDTO contactDTO)
         {
-            return _addressBookRepository.UpdateContact(id, contact);
+            var existingContact = _addressBookRepository.GetContactById(id);
+            if (existingContact == null) return false;
+
+            _mapper.Map(contactDTO, existingContact);
+            _addressBookRepository.UpdateContact(id, existingContact);
+            return true;
         }
 
         /// <summary>
