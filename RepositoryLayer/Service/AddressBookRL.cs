@@ -87,8 +87,24 @@ namespace RepositoryLayer.Service
             // Clear cache after adding a new contact
             _redisCache.RemoveCache("AddressBook_AllContacts");
 
+            // Publish event to RabbitMQ
+            var rabbitMQ = new RabbitMQProducer();
+            var eventMessage = new
+            {
+                ContactId = contact.Id,
+                Name = $"{contact.FullName}",
+                Address = contact.Address,
+                City = contact.City,
+                State = contact.State,
+                ZipCode = contact.ZipCode,
+                PhoneNumber = contact.PhoneNumber,
+                Message = "New contact added successfully!"
+            };
+            rabbitMQ.PublishMessage(eventMessage);
+
             return contact;
         }
+
 
         /// <summary>
         /// Updates an existing contact in the database and clears related cache.

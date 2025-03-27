@@ -13,6 +13,7 @@ using BusinessLayer.Helper;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Text;
+using RepositoryLayer.Helper;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +25,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = redisConnection;
     options.InstanceName = "AddressBook_";
 });
+
+// Configure RabbitMQ
+var rabbitMQConsumer = new RabbitMQConsumer();
+Task.Run(() => rabbitMQConsumer.StartConsumer());
 
 // Configure DbContext with SQL Server
 builder.Services.AddDbContext<AddressBookContext>(options =>

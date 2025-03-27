@@ -4,6 +4,7 @@ using ModelLayer.Entity;
 using ModelLayer.Utility;
 using RepositoryLayer.Context;
 using RepositoryLayer.Exceptions;
+using RepositoryLayer.Helper;
 using RepositoryLayer.Interface;
 using System;
 using System.Linq;
@@ -37,12 +38,23 @@ namespace RepositoryLayer.Service
                 _context.Users.Add(userRequest);
                 _context.SaveChanges();
 
+                // Create response model
                 var newUserResponse = new UserResponseModel()
                 {
                     Email = userRequest.Email,
                     Name = userRequest.Name,
                     Role = userRequest.Role
                 };
+
+                // Publish event to RabbitMQ
+                var rabbitMQ = new RabbitMQProducer();
+                var eventMessage = new
+                {
+                    Email = userRequest.Email,
+                    Name = userRequest.Name,
+                    Message = "New user registered successfully!"
+                };
+                rabbitMQ.PublishMessage(eventMessage);
 
                 return new ResponseModel<UserResponseModel>((int)HttpStatusCode.Created, true, "User registered successfully", newUserResponse);
             }
@@ -55,6 +67,7 @@ namespace RepositoryLayer.Service
                 return new ResponseModel<UserResponseModel>((int)HttpStatusCode.InternalServerError, false, "An error occurred while registering the user.", null);
             }
         }
+
 
         /// <summary>
         /// Retrieves a user by email for login verification.
