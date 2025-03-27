@@ -53,7 +53,7 @@ namespace BusinessLayer.Service
         /// </summary>
         /// <param name="contact">The contact details to add.</param>
         /// <returns>The newly added contact.</returns>
-        public Contact AddContact(AddressBookDTO contactDTO)
+        public Contact AddContact(Contact contactDTO)
         {
             var contactEntity = _mapper.Map<Contact>(contactDTO);
             _addressBookRepository.AddContact(contactEntity);
@@ -66,7 +66,7 @@ namespace BusinessLayer.Service
         /// <param name="id">The ID of the contact to update.</param>
         /// <param name="contact">The updated contact details.</param>
         /// <returns>True if the update was successful, otherwise false.</returns>
-        public bool UpdateContact(int id, AddressBookDTO contactDTO)
+        public bool UpdateContact(int id, Contact contactDTO)
         {
             var existingContact = _addressBookRepository.GetContactById(id);
             if (existingContact == null) return false;

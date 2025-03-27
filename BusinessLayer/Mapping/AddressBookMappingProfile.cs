@@ -15,8 +15,7 @@ namespace BusinessLayer.Mapping
         /// </summary>
         public AddressBookMappingProfile()
         {
-            CreateMap<Contact, AddressBookDTO>()
-                .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => $"{src.FullName}"));
+            CreateMap<Contact, AddressBookDTO>();
             // DTO to Entity Mapping
             CreateMap<AddressBookDTO, Contact>();
         }

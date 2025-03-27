@@ -15,8 +15,8 @@ namespace BusinessLayer.Interface
     {
         List<Contact> GetAllContacts();
         Contact GetContactById(int id);
-        Contact AddContact(AddressBookDTO contactDTO);
-        bool UpdateContact(int id, AddressBookDTO contactDTO);
+        Contact AddContact(Contact contactDTO);
+        bool UpdateContact(int id, Contact contactDTO);
         bool DeleteContact(int id);
     }
 }
