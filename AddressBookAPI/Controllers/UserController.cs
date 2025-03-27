@@ -76,5 +76,36 @@ namespace AddressBook.Controllers
             var token = _tokenGenerator.GenerateJwtToken(response.Data);
             return Ok(new { Token = token, User = response.Data });
         }
+
+        [HttpPost("forgot-password")]
+        /// <summary>
+        /// Initiates the password reset process by generating a reset token and sending it via email.
+        /// </summary>
+        /// <param name="request">Request model containing the user's email.</param>
+        /// <returns>Returns a response indicating whether the reset email was sent successfully.</returns>
+        public IActionResult ForgotPassword([FromBody] ForgotPasswordRequestModel request)
+        {
+            var response = _userBL.ForgotPassword(request.Email);
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
+        [HttpPost("reset-password")]
+        /// <summary>
+        /// Resets the user's password using the provided reset token.
+        /// </summary>
+        /// <param name="request">Request model containing the reset token and new password.</param>
+        /// <returns>Returns a response indicating whether the password was successfully reset.</returns>
+        public IActionResult ResetPassword([FromBody] ResetPasswordRequestModel request)
+        {
+            var response = _userBL.ResetPassword(request.Token, request.NewPassword);
+            if (!response.Success)
+                return BadRequest(response);
+
+            return Ok(response);
+        }
+
     }
 }

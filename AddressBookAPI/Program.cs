@@ -36,6 +36,7 @@ builder.Services.AddScoped<IAddressBookService, AddressBookService>();
 builder.Services.AddScoped<IUserRL, UserRL>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGenerateToken, GenerateToken>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 
 // JWT Authentication Setup
 var key = builder.Configuration["Jwt:Key"]; // Ensure you have this in appsettings.json

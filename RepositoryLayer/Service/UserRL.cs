@@ -8,6 +8,7 @@ using RepositoryLayer.Interface;
 using System;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 
 namespace RepositoryLayer.Service
 {
@@ -91,6 +92,34 @@ namespace RepositoryLayer.Service
             {
                 return new ResponseModel<UserResponseModel>((int)HttpStatusCode.InternalServerError, false, "An error occurred during login", null);
             }
+        }
+
+        public ResponseModel<string> GeneratePasswordResetToken(string email)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.Email == email);
+            if (user == null)
+                return new ResponseModel<string>((int)HttpStatusCode.NotFound, false, "User not found", null);
+
+            string token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+            user.ResetToken = token;
+            user.ResetTokenExpiry = DateTime.UtcNow.AddHours(1);
+
+            _context.SaveChanges();
+            return new ResponseModel<string>((int)HttpStatusCode.OK, true, "Reset token generated", token);
+        }
+
+        public ResponseModel<bool> ResetPassword(string token, string newPassword)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.ResetToken == token && u.ResetTokenExpiry > DateTime.UtcNow);
+            if (user == null)
+                return new ResponseModel<bool>((int)HttpStatusCode.BadRequest, false, "Invalid or expired token", false);
+
+            user.Password = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.ResetToken = null;
+            user.ResetTokenExpiry = null;
+
+            _context.SaveChanges();
+            return new ResponseModel<bool>((int)HttpStatusCode.OK, true, "Password reset successful", true);
         }
     }
 }

@@ -15,14 +15,16 @@ namespace BusinessLayer.Service
     public class UserService : IUserService
     {
         private readonly IUserRL _userRL;
+        private readonly IEmailService _emailService; // SMTP Service
 
         /// <summary>
         /// Initializes UserService with the user repository layer.
         /// </summary>
         /// <param name="userRL">User repository instance.</param>
-        public UserService(IUserRL userRL)
+        public UserService(IUserRL userRL, IEmailService emailService)
         {
             _userRL = userRL;
+            _emailService = emailService;
         }
 
         /// <summary>
@@ -71,6 +73,37 @@ namespace BusinessLayer.Service
             };
 
             return new ResponseModel<UserResponseModel>(200, true, "Login successful", userResponse);
+        }
+
+        /// <summary>
+        /// Generates a password reset token for the specified email and sends it via email.
+        /// </summary>
+        /// <param name="email">The email address of the user requesting a password reset.</param>
+        /// <returns>
+        /// A response indicating whether the password reset email was sent successfully.
+        /// </returns>
+        public ResponseModel<string> ForgotPassword(string email)
+        {
+            var tokenResponse = _userRL.GeneratePasswordResetToken(email);
+            if (!tokenResponse.Success)
+                return tokenResponse;
+
+            _emailService.SendEmail(email, "Password Reset", $"Your password reset token: {tokenResponse.Data}");
+
+            return new ResponseModel<string>(200, true, "Password reset email sent successfully", null);
+        }
+
+        /// <summary>
+        /// Resets the user's password using the provided reset token.
+        /// </summary>
+        /// <param name="token">The password reset token provided to the user.</param>
+        /// <param name="newPassword">The new password to be set.</param>
+        /// <returns>
+        /// A response indicating whether the password reset was successful.
+        /// </returns>
+        public ResponseModel<bool> ResetPassword(string token, string newPassword)
+        {
+            return _userRL.ResetPassword(token, newPassword);
         }
 
     }

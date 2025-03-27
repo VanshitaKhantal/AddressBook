@@ -22,5 +22,9 @@ namespace ModelLayer.Entity
         public string Password { get; set; }
         [Required]
         public string Role { get; set; }
+
+        // Add ResetToken and ResetTokenExpiry fields
+        public string? ResetToken { get; set; }
+        public DateTime? ResetTokenExpiry { get; set; }
     }
 }
