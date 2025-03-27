@@ -16,6 +16,15 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Configure redis
+var redisConnection = builder.Configuration["Redis:ConnectionString"];
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = redisConnection;
+    options.InstanceName = "AddressBook_";
+});
+
 // Configure DbContext with SQL Server
 builder.Services.AddDbContext<AddressBookContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
@@ -37,6 +46,7 @@ builder.Services.AddScoped<IUserRL, UserRL>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IGenerateToken, GenerateToken>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddSingleton<RedisCacheService>();
 
 // JWT Authentication Setup
 var key = builder.Configuration["Jwt:Key"]; // Ensure you have this in appsettings.json
