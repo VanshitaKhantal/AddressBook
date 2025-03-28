@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35728.132 d17.12
+VisualStudioVersion = 17.12.35728.132
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddressBookAPI", "AddressBookAPI\AddressBookAPI.csproj", "{C7A8EF70-907B-4125-969F-904E5F767FD7}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RepositoryLayer", "RepositoryLayer\RepositoryLayer.csproj", "{3805E015-0BC3-40E0-B2E0-E32407353989}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelLayer", "ModelLayer\ModelLayer.csproj", "{D32583FA-F23E-45FE-8605-ACE74CE674AB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddressBookApp.Tests", "AddressBookApp.Tests\AddressBookApp.Tests.csproj", "{08C27015-4536-43B8-8986-CD3534ACE07C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{D32583FA-F23E-45FE-8605-ACE74CE674AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D32583FA-F23E-45FE-8605-ACE74CE674AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D32583FA-F23E-45FE-8605-ACE74CE674AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08C27015-4536-43B8-8986-CD3534ACE07C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08C27015-4536-43B8-8986-CD3534ACE07C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08C27015-4536-43B8-8986-CD3534ACE07C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08C27015-4536-43B8-8986-CD3534ACE07C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
